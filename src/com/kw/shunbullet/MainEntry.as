@@ -2,17 +2,23 @@
 {
 	import flash.display.Sprite;
 	import flash.display.MovieClip;
- 	import flash.display.StageAlign;
+	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
-   
+	import flash.sensors.Accelerometer;
+	import flash.events.AccelerometerEvent;
+	import flash.events.Event;
+
 	public class MainEntry extends Sprite
 	{
 		/* variable declaration */
 		private var _bullets:Vector.<MovieClip > ;
-
-		private var _stgHalfHeight:Number;
+		private var _airplane:MovieClip;
+		private var _accX:Number;
+		private var _accY:Number;
+		private var _acc:Accelerometer;
 		// constant
 		private static const G:Number = 0.8;
+		private static const AIRPLANE_SPEED:Number = 10;
 		private static const BULLET_COUNT:Number = 100;
 		private static const BULLET_SPEED:Number = 9;
 		private static const BULLET_INIT_R:Number = 400;
@@ -30,30 +36,51 @@
 			_bullets = new Vector.<MovieClip > (BULLET_COUNT,true);
 			for (var i:int = 0; i < BULLET_COUNT; i++)
 			{
-				var bullet:MovieClip = new Bullet_mc;
+				var bullet:MovieClip = new Bullet_mc  ;
 				bullet.cacheAsBitmap = true;
-				var bul_ang:Number = Math.random()*360;
-				bullet.x = STG_W/2 + BULLET_INIT_R*Math.cos(bul_ang);
-				bullet.y = STG_H/2 + BULLET_INIT_R*Math.sin(bul_ang);
-				/*
-				var bul_pos:Number = Math.random()*2*(STG_W + STG_H);
-				if (bul_pos > (2*STG_W + STG_H)) {
-					bullet.x = 0;
-					bullet.y = STG_H - (bul_pos - (2*STG_W + STG_H));
-				} else if (bul_pos > (STG_W + STG_H)) {
-					bullet.x = STG_W - (bul_pos - (STG_W + STG_H));
-					bullet.y = STG_H;
-				} else if (bul_pos > STG_W) {
-					bullet.x = STG_W;
-					bullet.y = bul_pos - STG_W;
-				} else {
-					bullet.x = bul_pos;
-					bullet.y = 0;
-				}*/
+				var bul_ang:Number = Math.random() * 360;
+				bullet.x = STG_W / 2 + BULLET_INIT_R * Math.cos(bul_ang);
+				bullet.y = STG_H / 2 + BULLET_INIT_R * Math.sin(bul_ang);
 				_bullets[i] = bullet;
 				addChild(bullet);
 			}
+
+			// init airplane
+			_airplane = new Airplane1_mc  ;
+			_airplane.x = STG_W / 2;
+			_airplane.y = STG_H / 2;
+			addChild(_airplane);
+			_airplane.addEventListener(Event.ENTER_FRAME, moveAirplane);
+
+			// init accelerometer
+			_accX = 0;
+			_accY = 0;
+			_acc = new Accelerometer();
+			_acc.addEventListener(AccelerometerEvent.UPDATE, onAccUpdatedHandler);
+
 			trace("MainEntry");
+		}
+
+		/* Acc update event handler */
+		private function onAccUpdatedHandler(e:AccelerometerEvent):void
+		{
+			_accX = e.accelerationX;
+			_accY = e.accelerationY;
+		}
+
+		/* Move airplane handler */
+		private function moveAirplane(evt:Event)
+		{
+			_airplane.x -=  _accX * AIRPLANE_SPEED;
+			_airplane.y +=  _accY * AIRPLANE_SPEED;
+			if (_airplane.x > (STG_W - _airplane.width / 2))
+				_airplane.x = STG_W - _airplane.width / 2;
+			if (_airplane.x < (0 + _airplane.width / 2))
+				_airplane.x = 0 + _airplane.width / 2;
+			if (_airplane.y > (STG_H - _airplane.width / 2))
+				_airplane.y = STG_H - _airplane.width / 2;
+			if (_airplane.y < (0 + _airplane.width / 2))
+				_airplane.y = 0 + _airplane.width / 2;
 		}
 	}
 }
