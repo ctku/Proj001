@@ -7,11 +7,15 @@
 	import flash.sensors.Accelerometer;
 	import flash.events.AccelerometerEvent;
 	import flash.events.Event;
+	import flash.geom.Point;
+	import fl.transitions.Tween;
+	import fl.transitions.easing.*;
+	import fl.transitions.TweenEvent; 
 
 	public class MainEntry extends Sprite
 	{
 		/* variable declaration */
-		private var _bullets:Vector.<MovieClip > ;
+		private var _bullets:Vector.<MovieClip>;
 		private var _airplane:MovieClip;
 		private var _accX:Number;
 		private var _accY:Number;
@@ -36,11 +40,13 @@
 			_bullets = new Vector.<MovieClip > (BULLET_COUNT,true);
 			for (var i:int = 0; i < BULLET_COUNT; i++)
 			{
-				var bullet:MovieClip = new Bullet_mc  ;
+				//var bullet:MovieClip = new Bullet_mc;
+				var bullet:MovieClip = new LineBullet_mc;
 				bullet.cacheAsBitmap = true;
 				var bul_ang:Number = Math.random() * 360;
-				bullet.x = STG_W / 2 + BULLET_INIT_R * Math.cos(bul_ang);
-				bullet.y = STG_H / 2 + BULLET_INIT_R * Math.sin(bul_ang);
+				bullet.x = STG_W / 2 + BULLET_INIT_R * Math.cos(bul_ang*Math.PI/180);
+				bullet.y = STG_H / 2 - BULLET_INIT_R * Math.sin(bul_ang*Math.PI/180);
+				bullet.rotation = -bul_ang + (0.5-Math.random())*100;
 				_bullets[i] = bullet;
 				addChild(bullet);
 			}
